@@ -1,5 +1,8 @@
 # Charging Station Grouping
 
+<img width="1280" height="624" alt="image" src="https://github.com/user-attachments/assets/63e558de-5dc6-45a5-aae9-44931f480f79" />
+
+
 ## Problem
 
 A **charging station** is a site where EV drivers can charge, and can have one or more individual chargers (similar to how a gas station has one or more pumps).
