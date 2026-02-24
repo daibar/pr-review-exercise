@@ -26,6 +26,20 @@ func stationKey(s Station) string {
 	return strings.Join([]string{s.Address1, s.City, s.State, s.Network}, "|")
 }
 
+func NumericSuffix(s Station) string {
+	parts := strings.Split(s.Name, ", ")
+	first := strings.TrimSpace(parts[0])
+	segs := strings.Split(first, "-")
+	return strings.TrimSpace(segs[1])
+}
+
+func DisplayNameWithoutNumber(s Station) string {
+	parts := strings.Split(s.Name, ", ")
+	first := strings.TrimSpace(parts[0])
+	suffix := NumericSuffix(s)
+	return strings.TrimSuffix(first, "-"+suffix)
+}
+
 func GroupStations(stations []Station) []Station {
 	if len(stations) == 0 {
 		return nil
@@ -39,6 +53,7 @@ func GroupStations(stations []Station) []Station {
 
 		if existing, ok := byKey[key]; ok {
 			existing.Chargers = append(existing.Chargers, s.Chargers...)
+			existing.Name = existing.Name + ", " + s.Name
 		} else {
 			merged := Station{
 				Name:     s.Name,
@@ -115,6 +130,10 @@ func main() {
 	}
 
 	grouped := GroupStations(input)
+
+	for i := range grouped {
+		grouped[i].Name = DisplayNameWithoutNumber(grouped[i])
+	}
 
 	jsonOut, _ := json.MarshalIndent(grouped, "", "    ")
 	fmt.Println("Grouped stations (desired structure):")
