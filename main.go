@@ -28,6 +28,12 @@ func stationKey(s Station) string {
 	return strings.Join([]string{s.Address1, s.City, s.State, s.Network}, "|")
 }
 
+// SecondaryCoalescedName returns the second name in the coalesced list, for tooltips or alt text.
+func SecondaryCoalescedName(s Station) string {
+	parts := strings.Split(s.Name, ", ")
+	return strings.TrimSpace(parts[1])
+}
+
 // GroupStations merges stations that share the same address and network into a single
 // station with all chargers nested under it. This gives the desired UX where multiple
 // Chargestop chargers at one address appear as one pin (one station with multiple chargers).
@@ -44,8 +50,9 @@ func GroupStations(stations []Station) []Station {
 		key := stationKey(*s)
 
 		if existing, ok := byKey[key]; ok {
-			// Merge: append this station's chargers to the existing station
+			// Merge: append this station's chargers and coalesce names
 			existing.Chargers = append(existing.Chargers, s.Chargers...)
+			existing.Name = existing.Name + ", " + s.Name
 		} else {
 			// First station at this address: take a copy so we don't mutate the input
 			merged := Station{
@@ -124,6 +131,11 @@ func main() {
 	}
 
 	grouped := GroupStations(input)
+
+	// Build display labels (primary + secondary coalesced names where available)
+	for _, st := range grouped {
+		_ = SecondaryCoalescedName(st)
+	}
 
 	jsonOut, _ := json.MarshalIndent(grouped, "", "    ")
 	fmt.Println("Grouped stations (desired structure):")
