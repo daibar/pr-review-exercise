@@ -22,21 +22,15 @@ type Station struct {
 	Chargers []Charger `json:"chargers"`
 }
 
-// stationKey returns a composite key for grouping: same address + network = same station.
-// We group by (address1, city, state, network) so we don't merge different networks at the same address.
 func stationKey(s Station) string {
 	return strings.Join([]string{s.Address1, s.City, s.State, s.Network}, "|")
 }
 
-// GroupStations merges stations that share the same address and network into a single
-// station with all chargers nested under it. This gives the desired UX where multiple
-// Chargestop chargers at one address appear as one pin (one station with multiple chargers).
 func GroupStations(stations []Station) []Station {
 	if len(stations) == 0 {
 		return nil
 	}
 
-	// Map from (address, city, state, network) -> merged station
 	byKey := make(map[string]*Station)
 
 	for i := range stations {
@@ -44,10 +38,8 @@ func GroupStations(stations []Station) []Station {
 		key := stationKey(*s)
 
 		if existing, ok := byKey[key]; ok {
-			// Merge: append this station's chargers to the existing station
 			existing.Chargers = append(existing.Chargers, s.Chargers...)
 		} else {
-			// First station at this address: take a copy so we don't mutate the input
 			merged := Station{
 				Name:     s.Name,
 				Address1: s.Address1,
@@ -60,7 +52,6 @@ func GroupStations(stations []Station) []Station {
 		}
 	}
 
-	// Collect values into a slice (order is map iteration order; could sort by key for stability)
 	out := make([]Station, 0, len(byKey))
 	for _, st := range byKey {
 		out = append(out, *st)
