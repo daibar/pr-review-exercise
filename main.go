@@ -26,11 +26,14 @@ func stationKey(s Station) string {
 	return strings.Join([]string{s.Address1, s.City, s.State, s.Network}, "|")
 }
 
+<<<<<<< HEAD
 func SecondaryCoalescedName(s Station) string {
 	parts := strings.Split(s.Name, ", ")
 	return strings.TrimSpace(parts[1])
 }
 
+=======
+>>>>>>> main
 func GroupStations(stations []Station) []Station {
 	if len(stations) == 0 {
 		return nil
